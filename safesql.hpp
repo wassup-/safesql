@@ -1,12 +1,16 @@
+#ifndef SAFESQL_HPP_
+#define SAFESQL_HPP_
+
 #include "assert.hpp"
 #include "config.hpp"
 #include "type_traits.hpp"
 
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <vector>
+#include <iostream>		// for std::ostream
+#include <sstream>		// for std::ostringstream
+#include <string>		// for std::basic_string, std::to_string
+#include <type_traits>	// for std::is_arithmetic, std::decay, std::is_same,  std::true_type, std::false_type
+#include <utility>		// for std::swap
+#include <vector>		// for std::vector
 
 namespace fp {
 
@@ -17,19 +21,19 @@ namespace fp {
 		struct default_tag { };
 
 		template<typename>
-		struct is_string : std::false_type { };
+		struct is_string : Bool<false> { };
 
 		template<typename CharT, typename Traits, typename Alloc>
-		struct is_string<std::basic_string<CharT, Traits, Alloc>> : std::true_type { };
+		struct is_string<std::basic_string<CharT, Traits, Alloc>> : Bool<true> { };
 
 		template<typename T>
 		struct is_string_like : Conditional<
 									std::is_same<Invoke<std::decay<T>>, char *>, 
-									std::true_type, 
+									Bool<true>, 
 									Conditional<
 										is_string<T>, 
-										std::true_type, 
-										std::false_type
+										Bool<true>, 
+										Bool<false>
 									>
 								> { };
 
@@ -199,19 +203,4 @@ namespace fp {
 	}
 }
 
-using fp::sql::_;
-using fp::sql::query;
-
-int main(int argc, char ** argv) {
-	using std::to_string;
-
-	query qry;
-	qry << "SELECT p_name, p_city ";
-	qry << "FROM tbl_people ";
-	qry << "WHERE p_id = " << _;
-	qry << " OR p_name LIKE " << _;
-	qry << " AND p_age < " << _;
-	std::cout << "Original query: " << to_string(qry) << std::endl;
-	std::cout << "Executed query: " << qry.execute(5, "%ket% %jap%", 20) << std::endl;
-	return 0;
-}
+#endif
