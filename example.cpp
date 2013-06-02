@@ -1,6 +1,7 @@
 #include "safesql.hpp"
 
-#include <iostream>
+#include <iostream>		// for std::cout
+#include <string>		// for std::to_string
 
 using fp::sql::_;
 using fp::sql::query;
